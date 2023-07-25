@@ -12,7 +12,7 @@ class CreateNotificationsTable extends Migration
     {
         Schema::create('notifications', function (Blueprint $table) {
             $table->increments('notification_id');
-            $table->string('notification_message', 255)->nullable(false);
+            $table->string('notification_message');
             $table->unsignedInteger('notification_user')->nullable();
             $table->timestamps();
             $table->softDeletes();
