@@ -3,12 +3,9 @@
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class CreateImgsTable extends Migration
 {
-    use SoftDeletes; //論理削除を利用
-
     /**
      * Run the migrations.
      *
