@@ -9,4 +9,4 @@ cd laravel-project
 php artisan migrate
 php artisan migrate:rollback
 php artisan db:seed --class=ImagesTableSeeder
-
+php artisan db:seed --class=UsersTableSeeder
