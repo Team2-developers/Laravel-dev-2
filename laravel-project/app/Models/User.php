@@ -43,4 +43,9 @@ class User extends Model
         'birth',
         'token_deadline',
     ];
+
+    public function img()
+    {
+        return $this->belongsTo('App\Models\Img', 'img_id');
+    }
 }

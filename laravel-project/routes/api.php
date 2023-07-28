@@ -17,11 +17,14 @@ use App\Http\Controllers\FileUploadContoller;
 */
 
 
+//画像アップロード
+Route::post('fileupload', [FileUploadContoller::class, 'store']);
+
 //アカウント作成
 Route::post('/user/create', [UserController::class, 'store']);
 
-//画像アップロード
-Route::post('fileupload', [FileUploadContoller::class, 'store']);
+//認証系
+Route::post('/login', [UserController::class, 'login']);
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();

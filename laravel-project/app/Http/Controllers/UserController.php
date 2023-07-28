@@ -7,18 +7,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Carbon;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    public function index()
-    {
-        return User::all();
-    }
-
-    public function show(User $user)
-    {
-        return response()->json($user, 200);
-    }
 
     public function store(Request $request)
     {
@@ -31,27 +23,21 @@ class UserController extends Controller
 
             $user = User::create($data);
 
+            $img_pass = $user->img ? $user->img->img_pass : null;
+
             return response()->json([
-                'status' => 'success',
-                'data' => $user
+                'message' => 'successfully',
+                'user' => [
+                    'user_id' => $user->user_id,
+                    'user_mail' => $user->user_mail,
+                    'user_name' => $user->user_name,
+                    'img_pass' => $img_pass,
+                    'user_token' => $user->token
+                ]
             ], 201);
         } catch (QueryException $e) {
             return $this->handleQueryException($e);
         }
-    }
-
-    public function update(Request $request, User $user)
-    {
-        $user->update($request->all());
-
-        return response()->json($user, 200);
-    }
-
-    public function delete(User $user)
-    {
-        $user->delete();
-
-        return response()->json(null, 204);
     }
 
     private function handleQueryException(QueryException $e)
@@ -69,5 +55,37 @@ class UserController extends Controller
             'message' => 'システムエラーが発生しました。時間を置いて再度お試しください。',
             'sys_error' => $e
         ], 500);
+    }
+
+
+    public function login(Request $request)
+    {
+        $credentials = $request->only('user_mail', 'user_pass');
+
+        $user = User::where('user_mail', $credentials['user_mail'])->first();
+
+        if (!$user || !Hash::check($credentials['user_pass'], $user->user_pass)) {
+            return response()->json([
+                'message' => 'Invalid email or password.'
+            ], 401);
+        }
+
+        // Update token and token_deadline
+        $user->token = Str::random(40);
+        $user->token_deadline = Carbon::now()->addWeeks(2);
+        $user->save();
+
+        $img_pass = $user->img ? $user->img->img_pass : null;
+
+        return response()->json([
+            'message' => 'successfully',
+            'user' => [
+                'user_id' => $user->user_id,
+                'user_mail' => $user->user_mail,
+                'user_name' => $user->user_name,
+                'img_pass' => $img_pass,
+                'user_token' => $user->token
+            ]
+        ], 200);
     }
 }
