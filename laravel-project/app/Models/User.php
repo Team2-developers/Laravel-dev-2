@@ -9,6 +9,7 @@ class User extends Model
 {
     use SoftDeletes;
 
+    protected $table = 'users';
     protected $primaryKey = 'user_id';
 
     protected $fillable = [
@@ -34,6 +35,8 @@ class User extends Model
     protected $hidden = [
         'user_pass',
         'token',
+        'abilities',
+        'token_deadline',
     ];
 
     protected $dates = [
