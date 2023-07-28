@@ -23,7 +23,7 @@ class UserController extends Controller
 
             $user = User::create($data);
 
-            $img_pass = $user->img ? $user->img->img_pass : null;
+            $img_path = $user->img ? $user->img->img_path : null;
 
             return response()->json([
                 'message' => 'successfully',
@@ -31,7 +31,7 @@ class UserController extends Controller
                     'user_id' => $user->user_id,
                     'user_mail' => $user->user_mail,
                     'user_name' => $user->user_name,
-                    'img_pass' => $img_pass,
+                    'img_path' => $img_path,
                     'user_token' => $user->token
                 ]
             ], 201);
@@ -75,7 +75,7 @@ class UserController extends Controller
         $user->token_deadline = Carbon::now()->addWeeks(2);
         $user->save();
 
-        $img_pass = $user->img ? $user->img->img_pass : null;
+        $img_path = $user->img ? $user->img->img_path : null;
 
         return response()->json([
             'message' => 'successfully',
@@ -83,7 +83,7 @@ class UserController extends Controller
                 'user_id' => $user->user_id,
                 'user_mail' => $user->user_mail,
                 'user_name' => $user->user_name,
-                'img_pass' => $img_pass,
+                'img_path' => $img_path,
                 'user_token' => $user->token
             ]
         ], 200);
@@ -118,7 +118,7 @@ class UserController extends Controller
             if (isset($data['episode5'])) $user->episode5 = $data['episode5'];
             $user->save();
 
-            $img_pass = $user->img ? $user->img->img_pass : null;
+            $img_path = $user->img ? $user->img->img_path : null;
 
             return response()->json([
                 'message' => 'successfully',
@@ -137,7 +137,7 @@ class UserController extends Controller
                     'episode3' => $user->episode3,
                     'episode4' => $user->episode4,
                     'episode5' => $user->episode5,
-                    'img_pass' => $img_pass
+                    'img_path' => $img_path
                 ]
             ], 200);
         } catch (QueryException $e) {

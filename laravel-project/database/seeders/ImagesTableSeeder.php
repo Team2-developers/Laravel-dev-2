@@ -22,7 +22,7 @@ class ImagesTableSeeder extends Seeder
 
         foreach ($imgPaths as $imgPath) {
             DB::table('imgs')->insert([
-                'img_pass' => $imgPath,
+                'img_path' => $imgPath,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
