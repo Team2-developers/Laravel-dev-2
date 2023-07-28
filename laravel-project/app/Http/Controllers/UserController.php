@@ -88,4 +88,60 @@ class UserController extends Controller
             ]
         ], 200);
     }
+
+    public function update(Request $request)
+    {
+        try {
+            $data = $request->all();
+
+            $user = User::where('user_mail', $data['user_mail'])->first();
+
+            if (!$user) {
+                return response()->json([
+                    'error' => 'User not found',
+                    'message' => 'The user with given email address does not exist.'
+                ], 404);
+            }
+
+            // Update the user data
+            if (isset($data['img_id'])) $user->img_id = $data['img_id'];
+            if (isset($data['user_name'])) $user->user_name = $data['user_name'];
+            if (isset($data['life_id'])) $user->life_id = $data['life_id'];
+            if (isset($data['birth'])) $user->birth = $data['birth'];
+            if (isset($data['blood_type'])) $user->blood_type = $data['blood_type'];
+            if (isset($data['height'])) $user->height = $data['height'];
+            if (isset($data['hobby'])) $user->hobby = $data['hobby'];
+            if (isset($data['episode1'])) $user->episode1 = $data['episode1'];
+            if (isset($data['episode2'])) $user->episode2 = $data['episode2'];
+            if (isset($data['episode3'])) $user->episode3 = $data['episode3'];
+            if (isset($data['episode4'])) $user->episode4 = $data['episode4'];
+            if (isset($data['episode5'])) $user->episode5 = $data['episode5'];
+            $user->save();
+
+            $img_pass = $user->img ? $user->img->img_pass : null;
+
+            return response()->json([
+                'message' => 'successfully',
+                'user' => [
+                    'user_id' => $user->user_id,
+                    'img_id' => $user->img_id,
+                    'user_mail' => $user->user_mail,
+                    'user_name' => $user->user_name,
+                    'life_id' => $user->life_id,
+                    'birth' => $user->birth,
+                    'blood_type' => $user->blood_type,
+                    'height' => $user->height,
+                    'hobby' => $user->hobby,
+                    'episode1' => $user->episode1,
+                    'episode2' => $user->episode2,
+                    'episode3' => $user->episode3,
+                    'episode4' => $user->episode4,
+                    'episode5' => $user->episode5,
+                    'img_pass' => $img_pass
+                ]
+            ], 200);
+        } catch (QueryException $e) {
+            return $this->handleQueryException($e);
+        }
+    }
 }

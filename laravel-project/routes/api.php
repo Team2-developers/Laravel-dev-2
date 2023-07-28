@@ -26,6 +26,7 @@ Route::post('/user/create', [UserController::class, 'store']);
 //認証系
 Route::post('/login', [UserController::class, 'login']);
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+Route::middleware('checktoken')->group(function () {
+    
+    Route::post('/user/update', [UserController::class, 'update']);
 });

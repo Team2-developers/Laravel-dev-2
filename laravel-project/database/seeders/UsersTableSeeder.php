@@ -31,6 +31,7 @@ class UsersTableSeeder extends Seeder
                 'episode3' => 'Episode 3',
                 'episode4' => 'Episode 4',
                 'episode5' => 'Episode 5',
+                'token' => 'n8UhGcmeMEXoA6NbJxZ0yKCPmI4MvkacncHvffbg'
             ],[
                 'img_id' => '2',
                 'user_mail' => 'example2@example.com',
@@ -45,6 +46,7 @@ class UsersTableSeeder extends Seeder
                 'episode3' => 'Episode 3',
                 'episode4' => 'Episode 4',
                 'episode5' => 'Episode 5',
+                'token' => 'kB4QYqjCZ7I5LKlqGoHDBaJn13VxwkaCKqMW3MLy'
             ],[
                 'img_id' => '3',
                 'user_mail' => 'example3@example.com',
@@ -59,6 +61,7 @@ class UsersTableSeeder extends Seeder
                 'episode3' => 'Episode 3',
                 'episode4' => 'Episode 4',
                 'episode5' => 'Episode 5',
+                'token' => 'l3YPRd0UCGfYjwkYPTSd2rWKdI0XNj2u31gzWysq'
             ],[
                 'img_id' => '4',
                 'user_mail' => 'example4@example.com',
@@ -73,12 +76,12 @@ class UsersTableSeeder extends Seeder
                 'episode3' => 'Episode 3',
                 'episode4' => 'Episode 4',
                 'episode5' => 'Episode 5',
+                'token' => 'n8UhGcmeMEXoA6NbJxZ0yKCPmI4MvkacncHvffbg'
             ],
         ];
 
         foreach ($users as $user) {
             $user['abilities'] = 'General user';
-            $user['token'] = Str::random(40);
             $user['token_deadline'] = Carbon::now()->addWeeks(10);
             User::create($user);
         }
