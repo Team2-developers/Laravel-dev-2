@@ -16,7 +16,7 @@ class CreateUsersTable extends Migration
             $table->increments('user_id');
             $table->unsignedInteger('img_id')->nullable();
             $table->foreign('img_id')->references('img_id')->on('imgs');
-            $table->string('user_mail');
+            $table->string('user_mail')->unique();
             $table->string('user_pass');
             $table->string('user_name');
             $table->integer('life_id')->nullable();
