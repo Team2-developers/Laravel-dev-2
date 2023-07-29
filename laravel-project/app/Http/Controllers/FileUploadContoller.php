@@ -26,17 +26,17 @@ class FileUploadContoller extends Controller
                 'file' => $filename
             ]);
         
-            return response()->json(['message' => 'Failed to upload file'], 500);
+            return response()->json(['message' => 'ファイルのアップロードに失敗しました'], 500);
         }
 
         $img = Img::create(['img_path' => $fullPath]);
 
         if(!$img){
-            return response()->json(['message' => 'Failed to create record'], 500);
+            return response()->json(['message' => 'レコードの作成に失敗しました'], 500);
         }
 
         return response()->json([
-            'message' => 'File uploaded and record created successfully',
+            'message' => 'ファイルがアップロードされ、レコードが正常に作成されました',
             'img_id' => $img->id,
             'img_path' => $img->img_path
         ], 200);

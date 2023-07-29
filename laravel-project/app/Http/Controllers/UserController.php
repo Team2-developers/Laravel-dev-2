@@ -98,8 +98,8 @@ class UserController extends Controller
 
             if (!$user) {
                 return response()->json([
-                    'error' => 'User not found',
-                    'message' => 'The user with given email address does not exist.'
+                    'error' => 'ユーザーが見つかりません',
+                    'message' => '指定されたメール アドレスを持つユーザーは存在しません。'
                 ], 404);
             }
 

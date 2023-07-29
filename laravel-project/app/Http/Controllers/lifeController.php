@@ -30,7 +30,7 @@ class LifeController extends Controller
             $token = $request->bearerToken();
             $user = User::where('token', $token)->first();
 
-            if(!$user) {
+            if (!$user) {
                 return response()->json([
                     'message' => 'User not found'
                 ], 404);
@@ -61,11 +61,60 @@ class LifeController extends Controller
         }
     }
 
+    public function updateLifeAndCell(Request $request)
+    {
+        try {
+            $request->validate([
+                'life_id' => ['required', 'integer', 'exists:lifes,life_id'],
+                'cells' => ['required', 'array'],
+                'cells.*.cell_id' => ['required', 'integer', 'exists:cells,cell_id'],
+            ]);
+
+            $token = $request->bearerToken();
+            $user = User::where('token', $token)->first();
+
+            if (!$user) {
+                return response()->json([
+                    'message' => 'User not found'
+                ], 404);
+            }
+
+            $life = Life::find($request->life_id);
+
+            if ($life->user_id !== $user->user_id) {
+                return response()->json([
+                    'message' => 'このlife_idは認証されたユーザーのものではありません。'
+                ], 403);
+            }
+
+            DB::transaction(function () use ($request, &$life) {
+                $lifeData = Arr::except($request->all(), ['cells']);
+                $life->update(array_filter($lifeData));
+
+                foreach ($request->cells as $cellData) {
+                    $cell = Cell::find($cellData['cell_id']);
+                    if ($cell->life_id !== $life->life_id) {
+                        throw new \Exception("無効な cell_id: Lifeに属していません");
+                    }
+                    $cell->update(array_filter($cellData));
+                }
+            });
+
+            return response()->json([
+                'message' => 'successfully',
+                'life' => $life,
+                'cells' => Cell::where('life_id', $life->life_id)->get()
+            ]);
+        } catch (\Exception $e) {
+            return $this->handleException($e);
+        }
+    }
+
     private function handleException($e)
     {
         return response()->json([
-            'error' => 'Unexpected error',
-            'message' => 'A system error occurred. Please try again later.',
+            'error' => '予期しないエラー',
+            'message' => 'システムエラーが発生しました。 後でもう一度試してください。',
             'sys_error' => $e->getMessage()
         ], 500);
     }

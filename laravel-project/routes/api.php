@@ -34,4 +34,6 @@ Route::middleware('checktoken')->group(function () {
 
     //人生とマスの作成
     Route::post('/createLifeAndTrout', [LifeController::class, 'storeLifeAndCell']);
+    //人生とマスの郵政
+    Route::post('/updateLifeAndTrout', [LifeController::class, 'updateLifeAndCell']);
 });
