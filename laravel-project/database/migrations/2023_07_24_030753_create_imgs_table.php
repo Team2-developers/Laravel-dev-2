@@ -3,12 +3,9 @@
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class CreateImgsTable extends Migration
 {
-    use SoftDeletes; //論理削除を利用
-
     /**
      * Run the migrations.
      *
@@ -18,7 +15,7 @@ class CreateImgsTable extends Migration
     {
         Schema::create('imgs', function (Blueprint $table) {
             $table->increments('img_id');
-            $table->string('img_pass');
+            $table->string('img_path');
             $table->timestamps();
             $table->softDeletes();
         });
