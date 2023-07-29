@@ -10,3 +10,5 @@ php artisan migrate
 php artisan migrate:rollback
 php artisan db:seed --class=ImagesTableSeeder
 php artisan db:seed --class=UsersTableSeeder
+php artisan db:seed --class=LifeSeeder
+php artisan db:seed --class=CellSeeder

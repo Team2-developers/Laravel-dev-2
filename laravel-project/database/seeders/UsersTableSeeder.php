@@ -76,7 +76,7 @@ class UsersTableSeeder extends Seeder
                 'episode3' => 'Episode 3',
                 'episode4' => 'Episode 4',
                 'episode5' => 'Episode 5',
-                'token' => 'n8UhGcmeMEXoA6NbJxZ0yKCPmI4MvkacncHvffbg'
+                'token' => '2dBqaDNIiTnvkPdRn5dRgC6sKypqclQvKGpo60aN'
             ],
         ];
 
