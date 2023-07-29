@@ -8,6 +8,8 @@ use App\Models\Life;
 use App\Models\Cell;
 use Illuminate\Support\Arr;
 use App\Models\User;
+use App\Models\Comment;
+use App\Models\Img;
 
 class LifeController extends Controller
 {
@@ -109,6 +111,59 @@ class LifeController extends Controller
             return $this->handleException($e);
         }
     }
+
+    public function getLifeWithComments(Request $request)
+    {
+        $token = $request->bearerToken();
+        $user = User::where('token', $token)->with('img')->first();
+
+        $lifes = Life::where('user_id', $user->user_id)->with('img', 'comments', 'comments.user.img')->get();
+
+        $result = [];
+        $result['message'] = 'successfully';
+
+        $img_path = $user->img ? $user->img->img_path : null;
+        $result['user'] = [
+            'user_id' => $user->user_id,
+            'img_path' => $img_path,
+            'user_mail' => $user->user_mail,
+            'user_name' => $user->user_name,
+            'life_id' => $user->life_id,
+            'birth' => $user->birth,
+            'blood_type' => $user->blood_type,
+            'height' => $user->height,
+            'hobby' => $user->hobby,
+            'episode1' => $user->episode1,
+            'episode2' => $user->episode2,
+            'episode3' => $user->episode3,
+            'episode4' => $user->episode4,
+        ];
+
+        foreach ($lifes as $life) {
+            $lifeArray = $life->toArray();
+            $commentsArray = [];
+
+            foreach ($life->comments as $comment) {
+                $commentUser = $comment->user;
+                $comment_img_path = $commentUser->img ? $commentUser->img->img_path : null;
+                $commentsArray[] = [
+                    'user_id' => $commentUser->user_id,
+                    'user_name' => $commentUser->user_name,
+                    'user_email' => $commentUser->user_mail,
+                    'img_path' => $comment_img_path,
+                    'comment' => $comment->comment
+                ];
+            }
+
+            $life_img_path = $life->img ? $life->img->img_path : null;
+            $lifeArray['img_path'] = $life_img_path;
+            $lifeArray['comments'] = $commentsArray;
+            $result['lifes'][] = $lifeArray;
+        }
+
+        return response()->json($result);
+    }
+
 
     private function handleException($e)
     {
