@@ -10,6 +10,7 @@ use Illuminate\Support\Arr;
 use App\Models\User;
 use App\Models\Comment;
 use App\Models\Img;
+use App\Models\Notification;
 
 class LifeController extends Controller
 {
@@ -257,6 +258,14 @@ class LifeController extends Controller
         $life->increment('good', $request->good);
 
         $life->refresh();
+
+        $token = $request->bearerToken();
+        $user = User::where('token', $token)->first();
+        
+        $notification = new Notification;
+        $notification->notification_message = $user->user_name . 'さんから' . $life->life_name . 'がいいねされました。';
+        $notification->notification_user = $life->user_id;
+        $notification->save();
 
         $result = [];
         $result['message'] = 'successfully';
