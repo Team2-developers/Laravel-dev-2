@@ -22,6 +22,8 @@ class ImagesTableSeeder extends Seeder
             'https://mp-class.chips.jp/lifegame/life_2.jpg',
             'https://mp-class.chips.jp/lifegame/life_3.jpg',
             'https://mp-class.chips.jp/lifegame/life_4.jpg',
+            'http://mp-class.chips.jp/lifegame/operation1.jpg',
+            'http://mp-class.chips.jp/lifegame/operation2.jpg',
         ];
 
         foreach ($imgPaths as $imgPath) {

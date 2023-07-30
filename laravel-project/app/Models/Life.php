@@ -41,4 +41,9 @@ class Life extends Model
     {
         return $this->hasMany(Cell::class, 'life_id', 'life_id');
     }
+
+    public function comments()
+    {
+        return $this->hasMany(Comment::class, 'life_id', 'life_id');
+    }
 }

@@ -48,4 +48,14 @@ class User extends Model
     {
         return $this->belongsTo('App\Models\Img', 'img_id');
     }
+
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class, 'recipient_id');
+    }
+
+    public function createdNotifications()
+    {
+        return $this->hasMany(Notification::class, 'creator_id');
+    }
 }

@@ -16,6 +16,11 @@ class Comment extends Model
         'user_id',
         'comment'
     ];
+    protected $hidden = [
+        'created_at',
+        'updated_at',
+        'deleted_at'
+    ];
 
     public function user()
     {

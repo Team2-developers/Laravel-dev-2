@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Comment;
 use App\Models\User;
 use App\Models\Life;
+use App\Models\Notification;
 
 class CommentController extends Controller
 {
@@ -48,11 +49,16 @@ class CommentController extends Controller
             ];
 
 
+            $notification = new Notification;
+            $notification->notification_message = $user->user_name . 'さんが' . $life->life_name . 'にコメントしました。';
+            $notification->creator_id = $user->user_id;
+            $notification->recipient_id = $life->user_id;
+            $notification->save();
+
             return response()->json([
                 'message' => 'successfully',
                 'comment' => $commentData
             ]);
-
         } catch (\Exception $e) {
             return $this->handleException($e);
         }
