@@ -7,6 +7,8 @@ docker-compsoe up -d --build
 cd laravel-project
 
 php artisan migrate
+php artisan db:seed
+
 php artisan migrate:rollback
 php artisan db:seed --class=ImagesTableSeeder
 php artisan db:seed --class=UsersTableSeeder
