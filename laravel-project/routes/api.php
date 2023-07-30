@@ -34,6 +34,9 @@ Route::middleware('checktoken')->group(function () {
     Route::post('/user/update', [UserController::class, 'update']);
     //人生とコメントの取得
     Route::get('/user/life', [LifeController::class, 'getLifeWithComments']);
+    
+    //他ユーザの人生とコメントの取得
+    Route::post('/otheruser/lifes', [LifeController::class, 'getOtherLifeWithComments']);
 
     //人生とマスの作成
     Route::post('/createLifeAndTrout', [LifeController::class, 'storeLifeAndCell']);
