@@ -6,6 +6,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\FileUploadContoller;
 use App\Http\Controllers\LifeController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\NotificationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -47,4 +48,7 @@ Route::middleware('checktoken')->group(function () {
 
     //コメントの作成
     Route::post('comment/create', [CommentController::class, 'store']);
+
+    //通知取得
+    Route::get('/notifications', [NotificationController::class, 'getNotifications']);
 });

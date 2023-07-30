@@ -22,4 +22,13 @@ class Notification extends Model
         'deleted_at'
     ];
 
+    public function recipient()
+    {
+        return $this->belongsTo(User::class, 'recipient_id');
+    }
+
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'creator_id');
+    }
 }
