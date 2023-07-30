@@ -25,7 +25,7 @@ Route::post('fileupload', [FileUploadContoller::class, 'store']);
 //アカウント作成
 Route::post('/user/create', [UserController::class, 'store']);
 
-//認証系
+//認証
 Route::post('/login', [UserController::class, 'login']);
 
 Route::middleware('checktoken')->group(function () {
@@ -42,6 +42,8 @@ Route::middleware('checktoken')->group(function () {
     Route::post('/createLifeAndTrout', [LifeController::class, 'storeLifeAndCell']);
     //人生とマスの修正
     Route::post('/updateLifeAndTrout', [LifeController::class, 'updateLifeAndCell']);
+    //Good追加
+    Route::post('/life/good', [LifeController::class, 'incrementGood']);
 
     //コメントの作成
     Route::post('comment/create', [CommentController::class, 'store']);

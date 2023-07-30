@@ -246,6 +246,33 @@ class LifeController extends Controller
         ];
     }
 
+    public function incrementGood(Request $request)
+    {
+        $life = Life::find($request->life_id);
+
+        if (is_null($life)) {
+            return response()->json(['message' => 'Life not found'], 404);
+        }
+
+        $life->increment('good', $request->good);
+
+        $life->refresh();
+
+        $result = [];
+        $result['message'] = 'successfully';
+        $result['life'] = [
+            'life_id' => $life->life_id,
+            'life_name' => $life->life_name,
+            'life_detail' => $life->life_detail,
+            'life_message' => $life->life_message,
+            'user_id' => $life->user_id,
+            'img_id' => $life->img_id,
+            'release' => $life->release,
+            'good' => $life->good,
+        ];
+
+        return response()->json($result);
+    }
 
     private function handleException($e)
     {
