@@ -140,9 +140,21 @@ class LifeController extends Controller
         ];
 
         foreach ($lifes as $life) {
-            $lifeArray = $life->toArray();
-            $commentsArray = [];
+            $life_img_path = $life->img ? $life->img->img_path : null;
 
+            $lifeArray = [
+                'life_id' => $life->life_id,
+                'img_id' => $life->img_id,
+                'img_path' => $life_img_path,
+                'life_name' => $life->life_name,
+                'life_detail' => $life->life_detail,
+                'life_message' => $life->life_message,
+                'user_id' => $life->user_id,
+                'good' => $life->good,
+                'release' => $life->release,
+            ];
+
+            $commentsArray = [];
             foreach ($life->comments as $comment) {
                 $commentUser = $comment->user;
                 $comment_img_path = $commentUser->img ? $commentUser->img->img_path : null;
@@ -155,14 +167,13 @@ class LifeController extends Controller
                 ];
             }
 
-            $life_img_path = $life->img ? $life->img->img_path : null;
-            $lifeArray['img_path'] = $life_img_path;
             $lifeArray['comments'] = $commentsArray;
             $result['lifes'][] = $lifeArray;
         }
 
         return response()->json($result);
     }
+
 
 
     private function handleException($e)
