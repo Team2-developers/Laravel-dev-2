@@ -12,19 +12,23 @@ class NotificationSeeder extends Seeder
         $notifications = [
             [
                 'notification_message' => 'First notification message',
-                'notification_user' => 1,
+                'creator_id' => 0,
+                'recipient_id' => 1,
             ],
             [
                 'notification_message' => 'Second notification message',
-                'notification_user' => 2,
+                'creator_id' => 0,
+                'recipient_id' => 2,
             ],
             [
                 'notification_message' => 'Third notification message',
-                'notification_user' => 3,
+                'creator_id' => 0,
+                'recipient_id' => 3,
             ],
             [
                 'notification_message' => 'Fourth notification message',
-                'notification_user' => 4,
+                'creator_id' => 0,
+                'recipient_id' => 4,
             ]
         ];
 

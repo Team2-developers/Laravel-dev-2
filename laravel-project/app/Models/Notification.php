@@ -22,8 +22,4 @@ class Notification extends Model
         'deleted_at'
     ];
 
-    public function user()
-    {
-        return $this->belongsTo(User::class, 'notification_user', 'user_id');
-    }
 }

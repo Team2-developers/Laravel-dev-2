@@ -51,7 +51,8 @@ class CommentController extends Controller
 
             $notification = new Notification;
             $notification->notification_message = $user->user_name . 'さんが' . $life->life_name . 'にコメントしました。';
-            $notification->notification_user = $life->user_id;
+            $notification->creator_id = $user->user_id;
+            $notification->recipient_id = $life->user_id;
             $notification->save();
 
             return response()->json([
