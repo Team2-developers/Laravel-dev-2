@@ -144,4 +144,37 @@ class UserController extends Controller
             return $this->handleQueryException($e);
         }
     }
+
+    public function getUser(Request $request)
+    {
+
+        $token = $request->bearerToken();
+        $user = User::where('token', $token)->first();
+
+        if ($user) {
+
+            $img_path = $user->img ? $user->img->img_path : null;
+            return response()->json([
+                'user_id' => $user->user_id,
+                'img_id' => $user->img_id,
+                'user_mail' => $user->user_mail,
+                'user_name' => $user->user_name,
+                'life_id' => $user->life_id,
+                'birth' => $user->birth,
+                'blood_type' => $user->blood_type,
+                'height' => $user->height,
+                'hobby' => $user->hobby,
+                'episode1' => $user->episode1,
+                'episode2' => $user->episode2,
+                'episode3' => $user->episode3,
+                'episode4' => $user->episode4,
+                'episode5' => $user->episode5,
+                'img_path' => $img_path
+            ], 200);
+        } else {
+            return response()->json([
+                'message' => 'user not found',
+            ], 404);
+        }
+    }
 }
