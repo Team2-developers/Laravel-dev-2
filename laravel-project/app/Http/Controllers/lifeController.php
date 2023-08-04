@@ -200,6 +200,42 @@ class LifeController extends Controller
         return response()->json($result);
     }
 
+    public function getLifeWithCells(Request $request)
+    {
+
+        $life_id = $request->input('life_id');
+        $life = Life::where('life_id', $life_id)->with('img')->first();
+
+        if ($life == null) {
+            return response()->json(['message' => 'Life not found']);
+        }
+
+        $result = [];
+        $result['message'] = 'successfully';
+
+        $life_img_path = $life->img ? $life->img->img_path : null;
+
+        $lifeArray = [
+            'life_id' => $life->life_id,
+            'img_id' => $life->img_id,
+            'img_path' => $life_img_path,
+            'life_name' => $life->life_name,
+            'life_detail' => $life->life_detail,
+            'life_message' => $life->life_message,
+            'user_id' => $life->user_id,
+            'good' => $life->good,
+            'release' => $life->release,
+        ];
+
+        // Retrieve cells associated with the life
+        $lifeArray['cells'] = Cell::where('life_id', $life->life_id)->get();
+
+        $result['life'] = $lifeArray;
+
+        return response()->json($result);
+    }
+
+
     private function formatUser($user)
     {
         return [
@@ -261,7 +297,7 @@ class LifeController extends Controller
 
         $token = $request->bearerToken();
         $user = User::where('token', $token)->first();
-        
+
         $notification = new Notification;
         $notification->notification_message = $user->user_name . 'さんから' . $life->life_name . 'がいいねされました。';
         $notification->creator_id = $user->user_id;

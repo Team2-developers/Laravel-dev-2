@@ -48,6 +48,8 @@ Route::middleware('checktoken')->group(function () {
     Route::post('/updateLifeAndTrout', [LifeController::class, 'updateLifeAndCell']);
     //Good追加
     Route::post('/life/good', [LifeController::class, 'incrementGood']);
+    //人生の詳細取得
+    Route::post('/life/getLifeAndTrout', [LifeController::class, 'getLifeWithCells']);
 
     //コメントの作成
     Route::post('comment/create', [CommentController::class, 'store']);
