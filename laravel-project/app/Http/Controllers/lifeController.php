@@ -70,7 +70,7 @@ class LifeController extends Controller
             $request->validate([
                 'life_id' => ['required', 'integer', 'exists:lifes,life_id'],
                 'cells' => ['required', 'array'],
-                'cells.*.cell_id' => ['required', 'integer', 'exists:cells,cell_id'],
+                'cells.*.cell_no' => ['required', 'integer'],
             ]);
 
             $token = $request->bearerToken();
@@ -94,10 +94,14 @@ class LifeController extends Controller
                 $lifeData = Arr::except($request->all(), ['cells']);
                 $life->update(array_filter($lifeData));
 
-                foreach ($request->cells as $cellData) {
-                    $cell = Cell::find($cellData['cell_id']);
-                    if ($cell->life_id !== $life->life_id) {
-                        throw new \Exception("無効な cell_id: Lifeに属していません");
+                $cells = Cell::where('life_id', $life->life_id)
+                    ->orderBy('cell_no')
+                    ->get();
+
+                foreach ($request->cells as $index => $cellData) {
+                    $cell = $cells[$index];
+                    if ($cell->cell_no !== $cellData['cell_no']) {
+                        throw new \Exception("無効な cell_no: Lifeに属していません");
                     }
                     $cell->update(array_filter($cellData));
                 }
