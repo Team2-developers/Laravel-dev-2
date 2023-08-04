@@ -7,6 +7,7 @@ use App\Http\Controllers\FileUploadContoller;
 use App\Http\Controllers\LifeController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\FirestoreController;
 
 /*
 |--------------------------------------------------------------------------
@@ -33,6 +34,8 @@ Route::middleware('checktoken')->group(function () {
 
     //ユーザアップデート
     Route::post('/user/update', [UserController::class, 'update']);
+    //ユーザ情報取得
+    Route::get('/user/getuser', [UserController::class, 'getuser']);
     //人生とコメントの取得
     Route::get('/user/life', [LifeController::class, 'getLifeWithComments']);
     
@@ -51,4 +54,8 @@ Route::middleware('checktoken')->group(function () {
 
     //通知取得
     Route::get('/notifications', [NotificationController::class, 'getNotifications']);
+
+    // Route::get('/createfirestore', [FirestoreController::class, 'createfirestore']);
 });
+
+Route::post('/createfirestore', [FirestoreController::class, 'createfirestore']);
