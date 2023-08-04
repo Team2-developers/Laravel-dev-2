@@ -57,7 +57,5 @@ Route::middleware('checktoken')->group(function () {
     //通知取得
     Route::get('/notifications', [NotificationController::class, 'getNotifications']);
 
-    // Route::get('/createfirestore', [FirestoreController::class, 'createfirestore']);
 });
 
-Route::post('/createfirestore', [FirestoreController::class, 'createfirestore']);
