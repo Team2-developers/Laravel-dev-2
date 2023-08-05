@@ -48,6 +48,8 @@ Route::middleware('checktoken')->group(function () {
     Route::post('/updateLifeAndTrout', [LifeController::class, 'updateLifeAndCell']);
     //Good追加
     Route::post('/life/good', [LifeController::class, 'incrementGood']);
+    //公開された人生のランダム取得
+    Route::get('/life/trend', [LifeController::class, 'getRandomLifes']);
     //人生の詳細取得
     Route::get('/life/{life_id}', [LifeController::class, 'getLifeWithCells']);
 

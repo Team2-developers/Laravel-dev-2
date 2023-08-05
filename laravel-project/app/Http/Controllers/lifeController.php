@@ -328,6 +328,24 @@ class LifeController extends Controller
         return response()->json($result);
     }
 
+    public function getRandomLifes(Request $request)
+    {
+        $lifes = Life::where('release', 1)
+            ->with('img')
+            ->inRandomOrder()
+            ->take(20)
+            ->get();
+
+        $result = [];
+        $result['message'] = 'successfully';
+
+        foreach ($lifes as $life) {
+            $result['lifes'][] = $this->formatLife($life);
+        }
+
+        return response()->json($result);
+    }
+
     private function handleException($e)
     {
         return response()->json([
