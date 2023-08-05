@@ -7,7 +7,7 @@ use App\Http\Controllers\FileUploadContoller;
 use App\Http\Controllers\LifeController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\NotificationController;
-use App\Http\Controllers\FirestoreController;
+use App\Http\Controllers\GameController;
 
 /*
 |--------------------------------------------------------------------------
@@ -56,6 +56,11 @@ Route::middleware('checktoken')->group(function () {
 
     //通知取得
     Route::get('/notifications', [NotificationController::class, 'getNotifications']);
+
+    // ゲーム作成
+    Route::get('game/create', [GameController::class, 'store']);
+    // イベント参加
+    Route::post('game/joingame', [GameController::class, 'addUserToGame']);
 
 });
 
