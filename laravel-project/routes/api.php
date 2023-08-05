@@ -63,6 +63,8 @@ Route::middleware('checktoken')->group(function () {
     Route::post('game/joingame', [GameController::class, 'addUserToGame']);
     // ゲームスタート
     Route::post('game/start', [GameController::class, 'StartGame']);
+    // ゲーム更新（サイコロを振った時など）
+    Route::post('game/update', [GameController::class, 'updateGameAndGameUser']);
 
 });
 

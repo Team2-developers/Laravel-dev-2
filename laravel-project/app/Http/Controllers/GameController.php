@@ -94,6 +94,14 @@ class GameController extends Controller
     public function StartGame(Request $request)
     {
         $game_id = $request->game_id;
+
+        $token = $request->bearerToken();
+        $currentUser = User::where('token', $token)->first();
+        $gameUserCount = GameUser::where('game_id', $game_id)->where('user_id', $currentUser->user_id)->count();
+        if ($gameUserCount < 1) {
+            return response()->json(['message' => '現在のユーザーはゲームに参加していません'], 400);
+        }
+
         $gameUserCount = GameUser::where('game_id', $game_id)->count();
         if ($gameUserCount < 4) {
             return response()->json(['message' => 'メンバーが足りていません'], 400);
@@ -122,5 +130,58 @@ class GameController extends Controller
 
         $eventname = 'gamestart';
         event(new LifeGameEvent($game, $users, $eventname));
+    }
+
+    public function updateGameAndGameUser(Request $request)
+    {
+        $game_id = $request->game_id;
+        $score = $request->score;
+        $current_cell = $request->current_cell;
+
+        $token = $request->bearerToken();
+        $currentUser = User::where('token', $token)->first();
+
+        $gameUser = GameUser::where('game_id', $game_id)->where('user_id', $currentUser->user_id)->first();
+
+        if (!$gameUser) {
+            return response()->json(['message' => '現在のユーザーはゲームに参加していません'], 400);
+        }
+
+        $game = Game::find($game_id);
+
+        $users = GameUser::where('game_id', $game_id)->with('user')->get();
+        $users_id = $users->pluck('user_id')->toArray();
+        $currentUserIndex = array_search($currentUser->user_id, $users_id);
+
+        if (!$this->validateUserTurn($game, $currentUserIndex)) {
+            return response()->json(['message' => 'あなたの番ではありません'], 400);
+        }
+
+        $game = $this->updateGameTurn($game);
+
+        $gameUser->score = $score;
+        $gameUser->current_cell = $current_cell;
+        $gameUser->save();
+
+        $eventname = 'user_turn';
+        event(new LifeGameEvent($game, $users, $eventname));
+    }
+
+    private function validateUserTurn($game, $currentUserIndex)
+    {
+        $turns = ['user1' => 0, 'user2' => 1, 'user3' => 2, 'user4' => 3];
+        return array_key_exists($game->game_turn, $turns) && $turns[$game->game_turn] == $currentUserIndex;
+    }
+
+    private function updateGameTurn($game)
+    {
+        $turns = ['user1' => 'user2', 'user2' => 'user3', 'user3' => 'user4', 'user4' => 'user1'];
+
+        if (array_key_exists($game->game_turn, $turns)) {
+            $game->game_turn = $turns[$game->game_turn];
+            $game->save();
+        }
+
+        return $game;
     }
 }
