@@ -16,6 +16,7 @@ class LifeGameEvent implements ShouldBroadcast
 
     public $game;
     public $users;
+    public $eventname;
 
     /**
      * Create a new event instance.
@@ -24,10 +25,11 @@ class LifeGameEvent implements ShouldBroadcast
      * @param  iterable  $users
      * @return void
      */
-    public function __construct(Game $game, iterable $users)
+    public function __construct(Game $game, iterable $users , string $eventname)
     {
         $this->game = $game;
         $this->users = $users;
+        $this->eventname = $eventname;
     }
 
     /**

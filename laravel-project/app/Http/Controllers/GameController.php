@@ -80,12 +80,14 @@ class GameController extends Controller
             'score' => 0,
             'current_cell' => 0,
         ]);
-        // $game = Game::find($game_id);
-        // LifeGameEvent::dispatch($game);
         $game = Game::find($game_id);
         $users = GameUser::where('game_id', $game->game_id)->with('user')->get();
-        event(new LifeGameEvent($game, $users));
+        $eventname = 'useradd';
+        event(new LifeGameEvent($game, $users, $eventname));
 
-        return response()->json(['message' => 'User added to the game.']);
+        return response()->json([
+            'message' => 'User added to the game.',
+            'game_id' => $game->game_id
+        ]);
     }
 }
