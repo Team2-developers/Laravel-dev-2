@@ -209,10 +209,9 @@ class LifeController extends Controller
         return response()->json($result);
     }
 
-    public function getLifeWithCells(Request $request)
+    public function getLifeWithCells($life_id)
     {
 
-        $life_id = $request->input('life_id');
         $life = Life::where('life_id', $life_id)->with('img')->first();
 
         if ($life == null) {
