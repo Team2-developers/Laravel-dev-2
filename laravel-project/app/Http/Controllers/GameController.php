@@ -182,19 +182,21 @@ class GameController extends Controller
                 return response()->json(['message' => 'あなたの番ではありません'], 400);
             }
 
-            $game = $this->updateGameTurn($game);
-
             $gameUser->score = $score;
             $gameUser->current_cell = $current_cell;
             $gameUser->save();
 
+            $game = $this->updateGameTurn($game, $current_cell);
+
+            $eventname = 'user_turn';
             $life = Life::where('life_id', $game->life_id)->with('cells')->first();
             $lifeArray = $life->toArray();
             if (in_array($current_cell, [1, 2, 3])) {
                 $randomGameEvent = GameEvent::inRandomOrder()->first();
                 $lifeArray['event'] = $randomGameEvent;
+
+                $eventname = 'user_event';
             }
-            $eventname = 'user_turn';
             event(new LifeGameEvent($game, $lifeArray, $users, $eventname));
 
             return response()->json([
@@ -211,17 +213,46 @@ class GameController extends Controller
         return array_key_exists($game->game_turn, $turns) && $turns[$game->game_turn] == $currentUserIndex;
     }
 
-    private function updateGameTurn($game)
+    private function updateGameTurn($game, $current_user_cell)
     {
         $turns = ['user1' => 'user2', 'user2' => 'user3', 'user3' => 'user4', 'user4' => 'user1'];
 
-        if (array_key_exists($game->game_turn, $turns)) {
-            $game->game_turn = $turns[$game->game_turn];
-            $game->save();
+        $gameUsers = GameUser::where('game_id', $game->game_id)->with('user')->get();
+
+        while (true) {
+            if (array_key_exists($game->game_turn, $turns)) {
+                $game->game_turn = $turns[$game->game_turn];
+            } else {
+                break;
+            }
+
+            $nextUserIndex = array_search($game->game_turn, array_keys($turns));
+            $nextUser = $gameUsers[$nextUserIndex];
+
+            if ($nextUser->current_cell <= 27) {
+                break;
+            }
+
+            if ($current_user_cell == 28) {
+                $allReached28 = true;
+                foreach ($gameUsers as $user) {
+                    if ($user->current_cell < 28) {
+                        $allReached28 = false;
+                        break;
+                    }
+                }
+                if ($allReached28) {
+                    $game->game_status = 'finished';
+                    break;
+                }
+            }
         }
 
+        $game->save();
         return $game;
     }
+
+
     private function handleException($e)
     {
         return response()->json([
