@@ -71,7 +71,7 @@ class GameController extends Controller
 
         $gameUserCount = GameUser::where('game_id', $game_id)->count();
         if ($gameUserCount >= 4) {
-            return response()->json(['error' => 'The game is full. No more users can be added.'], 400);
+            return response()->json(['message' => 'メンバーがいっぱいで参加できません'], 400);
         }
 
         GameUser::create([
@@ -89,5 +89,38 @@ class GameController extends Controller
             'message' => 'User added to the game.',
             'game_id' => $game->game_id
         ]);
+    }
+
+    public function StartGame(Request $request)
+    {
+        $game_id = $request->game_id;
+        $gameUserCount = GameUser::where('game_id', $game_id)->count();
+        if ($gameUserCount < 4) {
+            return response()->json(['message' => 'メンバーが足りていません'], 400);
+        }
+
+        // Gameの状態を'started'に更新
+        $game = Game::find($game_id);
+        $game->game_status = 'started';
+        $game->game_turn = 'user1';
+
+        $users = GameUser::where('game_id', $game_id)->with('user')->get();
+
+        $lifeIds = $users->map(function ($gameUser) {
+            $user = User::find($gameUser->user_id);
+            return $user->life_id;
+        })->filter()->toArray();  // null をフィルタリング
+
+        if (count($lifeIds) < 1) {
+            return response()->json(['message' => 'life_idが無いためゲームを始めることができません'], 400);
+        }
+
+        // ランダムに一つのlife_idを選択して保存します
+        $randomIndex = array_rand($lifeIds);
+        $game->life_id = $lifeIds[$randomIndex];
+        $game->save();
+
+        $eventname = 'gamestart';
+        event(new LifeGameEvent($game, $users, $eventname));
     }
 }

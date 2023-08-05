@@ -59,8 +59,10 @@ Route::middleware('checktoken')->group(function () {
 
     // ゲーム作成
     Route::get('game/create', [GameController::class, 'store']);
-    // イベント参加
+    // ゲーム参加
     Route::post('game/joingame', [GameController::class, 'addUserToGame']);
+    // ゲームスタート
+    Route::post('game/start', [GameController::class, 'StartGame']);
 
 });
 
