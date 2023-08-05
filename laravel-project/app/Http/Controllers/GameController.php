@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Game;
 use App\Models\GameUser;
+use App\Models\GameEvent;
 use App\Models\User;
 use App\Models\Life;
 use App\Models\Cell;
@@ -188,8 +189,13 @@ class GameController extends Controller
             $gameUser->save();
 
             $life = Life::where('life_id', $game->life_id)->with('cells')->first();
+            $lifeArray = $life->toArray();
+            if (in_array($current_cell, [1, 2, 3])) {
+                $randomGameEvent = GameEvent::inRandomOrder()->first();
+                $lifeArray['event'] = $randomGameEvent;
+            }
             $eventname = 'user_turn';
-            event(new LifeGameEvent($game, $life, $users, $eventname));
+            event(new LifeGameEvent($game, $lifeArray, $users, $eventname));
 
             return response()->json([
                 'message' => 'successfully'

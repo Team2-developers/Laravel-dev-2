@@ -24,10 +24,11 @@ class LifeGameEvent implements ShouldBroadcast
      * Create a new event instance.
      *
      * @param  Game  $game
+     * @param  array  $life  //ここを変更
      * @param  iterable  $users
      * @return void
      */
-    public function __construct(Game $game,Life $life, iterable $users , string $eventname)
+    public function __construct(Game $game, array $life, iterable $users, string $eventname)
     {
         $this->game = $game;
         $this->life = $life;
@@ -42,6 +43,6 @@ class LifeGameEvent implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return new Channel('lifegame'.$this->game->game_id);
+        return new Channel('lifegame' . $this->game->game_id);
     }
 }
