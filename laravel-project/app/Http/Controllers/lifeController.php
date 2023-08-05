@@ -46,6 +46,11 @@ class LifeController extends Controller
                 $lifeData['user_id'] = $user->user_id;
                 $life = Life::create($lifeData);
 
+                if ($user->life_id == null) {
+                    $user->life_id = $life->life_id;
+                    $user->save();
+                }
+
                 foreach ($request->cells as $cellData) {
                     $cellData['life_id'] = $life->life_id;
                     Cell::create($cellData);
@@ -204,10 +209,9 @@ class LifeController extends Controller
         return response()->json($result);
     }
 
-    public function getLifeWithCells(Request $request)
+    public function getLifeWithCells($life_id)
     {
 
-        $life_id = $request->input('life_id');
         $life = Life::where('life_id', $life_id)->with('img')->first();
 
         if ($life == null) {
@@ -320,6 +324,24 @@ class LifeController extends Controller
             'release' => $life->release,
             'good' => $life->good,
         ];
+
+        return response()->json($result);
+    }
+
+    public function getRandomLifes(Request $request)
+    {
+        $lifes = Life::where('release', 1)
+            ->with('img')
+            ->inRandomOrder()
+            ->take(20)
+            ->get();
+
+        $result = [];
+        $result['message'] = 'successfully';
+
+        foreach ($lifes as $life) {
+            $result['lifes'][] = $this->formatLife($life);
+        }
 
         return response()->json($result);
     }

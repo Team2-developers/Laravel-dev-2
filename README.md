@@ -16,3 +16,4 @@ php artisan db:seed --class=LifeSeeder
 php artisan db:seed --class=CellSeeder
 php artisan db:seed --class=CommentSeeder 
 php artisan db:seed --class=NotificationSeeder
+php artisan db:seed --class=GameEventsTableSeeder

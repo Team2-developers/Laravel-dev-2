@@ -7,7 +7,7 @@ use App\Http\Controllers\FileUploadContoller;
 use App\Http\Controllers\LifeController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\NotificationController;
-use App\Http\Controllers\FirestoreController;
+use App\Http\Controllers\GameController;
 
 /*
 |--------------------------------------------------------------------------
@@ -48,14 +48,25 @@ Route::middleware('checktoken')->group(function () {
     Route::post('/updateLifeAndTrout', [LifeController::class, 'updateLifeAndCell']);
     //Good追加
     Route::post('/life/good', [LifeController::class, 'incrementGood']);
+    //公開された人生のランダム取得
+    Route::get('/life/trend', [LifeController::class, 'getRandomLifes']);
     //人生の詳細取得
-    Route::post('/life/getLifeAndTrout', [LifeController::class, 'getLifeWithCells']);
+    Route::get('/life/{life_id}', [LifeController::class, 'getLifeWithCells']);
 
     //コメントの作成
     Route::post('comment/create', [CommentController::class, 'store']);
 
     //通知取得
     Route::get('/notifications', [NotificationController::class, 'getNotifications']);
+
+    // ゲーム作成
+    Route::get('game/create', [GameController::class, 'store']);
+    // ゲーム参加
+    Route::post('game/joingame', [GameController::class, 'addUserToGame']);
+    // ゲームスタート
+    Route::post('game/start', [GameController::class, 'StartGame']);
+    // ゲーム更新（サイコロを振った時など）
+    Route::post('game/update', [GameController::class, 'updateGameAndGameUser']);
 
 });
 
