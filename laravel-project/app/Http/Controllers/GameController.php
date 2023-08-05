@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\Game;
 use App\Models\GameUser;
 use App\Models\User;
+use App\Models\Life;
+use App\Models\Cell;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use App\Events\LifeGameEvent;
 
@@ -13,41 +15,46 @@ class GameController extends Controller
 {
     public function store(Request $request)
     {
-        $data = $request->all();
-        $data['life_id'] = null;
-        $data['game_turn'] = 'host';
 
-        $game = Game::create($data);
+        try {
+            $data = $request->all();
+            $data['life_id'] = null;
+            $data['game_turn'] = 'host';
 
-        $token = $request->bearerToken();
-        $user = User::where('token', $token)->first();
+            $game = Game::create($data);
 
-        $img_path = $user->img ? $user->img->img_path : null;
+            $token = $request->bearerToken();
+            $user = User::where('token', $token)->first();
 
-        GameUser::create([
-            'game_id' => $game->game_id,
-            'user_id' => $user->user_id,
-            'score' => 0,
-            'current_cell' => 0,
-        ]);
+            $img_path = $user->img ? $user->img->img_path : null;
 
-        $qrData = [
-            'game_id' => $game->game_id,
-            'user_id' => $user->user_id,
-            'user_name' => $user->user_name,
-            'user_mail' => $user->user_mail,
-            'img_path' => $img_path
-        ];
+            GameUser::create([
+                'game_id' => $game->game_id,
+                'user_id' => $user->user_id,
+                'score' => 0,
+                'current_cell' => 0,
+            ]);
 
-        $svgWithoutDeclaration = $this->generateQrCode($qrData);
+            $qrData = [
+                'game_id' => $game->game_id,
+                'user_id' => $user->user_id,
+                'user_name' => $user->user_name,
+                'user_mail' => $user->user_mail,
+                'img_path' => $img_path
+            ];
 
-        $response = [
-            'message' => 'successfully',
-            'svg' => $svgWithoutDeclaration,
-            'game_id' => $game->game_id,
-        ];
+            $svgWithoutDeclaration = $this->generateQrCode($qrData);
 
-        return response()->json($response);
+            $response = [
+                'message' => 'successfully',
+                'svg' => $svgWithoutDeclaration,
+                'game_id' => $game->game_id,
+            ];
+
+            return response()->json($response);
+        } catch (Exception $e) {
+            return $this->handleException($e);
+        }
     }
 
     private function generateQrCode(array $qrData): string
@@ -64,107 +71,132 @@ class GameController extends Controller
 
     public function addUserToGame(Request $request)
     {
-        $token = $request->bearerToken();
-        $user = User::where('token', $token)->first();
 
-        $game_id = $request->game_id;
+        try {
+            $token = $request->bearerToken();
+            $user = User::where('token', $token)->first();
 
-        $gameUserCount = GameUser::where('game_id', $game_id)->count();
-        if ($gameUserCount >= 4) {
-            return response()->json(['message' => 'メンバーがいっぱいで参加できません'], 400);
+            $game_id = $request->game_id;
+
+            $gameUserCount = GameUser::where('game_id', $game_id)->count();
+            if ($gameUserCount >= 4) {
+                return response()->json(['message' => 'メンバーがいっぱいで参加できません'], 400);
+            }
+
+            GameUser::create([
+                'game_id' => $game_id,
+                'user_id' => $user->user_id,
+                'score' => 0,
+                'current_cell' => 0,
+            ]);
+            $game = Game::find($game_id);
+            $users = GameUser::where('game_id', $game->game_id)->with('user')->get();
+            $life = Life::where('life_id', $game->life_id)->with('cells')->first();
+            $eventname = 'useradd';
+            event(new LifeGameEvent($game, $life, $users, $eventname));
+
+            return response()->json([
+                'message' => 'successfully',
+                'game_id' => $game->game_id
+            ]);
+        } catch (Exception $e) {
+            return $this->handleException($e);
         }
-
-        GameUser::create([
-            'game_id' => $game_id,
-            'user_id' => $user->user_id,
-            'score' => 0,
-            'current_cell' => 0,
-        ]);
-        $game = Game::find($game_id);
-        $users = GameUser::where('game_id', $game->game_id)->with('user')->get();
-        $eventname = 'useradd';
-        event(new LifeGameEvent($game, $users, $eventname));
-
-        return response()->json([
-            'message' => 'User added to the game.',
-            'game_id' => $game->game_id
-        ]);
     }
 
     public function StartGame(Request $request)
     {
-        $game_id = $request->game_id;
 
-        $token = $request->bearerToken();
-        $currentUser = User::where('token', $token)->first();
-        $gameUserCount = GameUser::where('game_id', $game_id)->where('user_id', $currentUser->user_id)->count();
-        if ($gameUserCount < 1) {
-            return response()->json(['message' => '現在のユーザーはゲームに参加していません'], 400);
+        try {
+            $game_id = $request->game_id;
+
+            $token = $request->bearerToken();
+            $currentUser = User::where('token', $token)->first();
+            $gameUserCount = GameUser::where('game_id', $game_id)->where('user_id', $currentUser->user_id)->count();
+            if ($gameUserCount < 1) {
+                return response()->json(['message' => '現在のユーザーはゲームに参加していません'], 400);
+            }
+
+            $gameUserCount = GameUser::where('game_id', $game_id)->count();
+            if ($gameUserCount < 4) {
+                return response()->json(['message' => 'メンバーが足りていません'], 400);
+            }
+
+            // Gameの状態を'started'に更新
+            $game = Game::find($game_id);
+            $game->game_status = 'started';
+            $game->game_turn = 'user1';
+
+            $users = GameUser::where('game_id', $game_id)->with('user')->get();
+
+            $lifeIds = $users->map(function ($gameUser) {
+                $user = User::find($gameUser->user_id);
+                return $user->life_id;
+            })->filter()->toArray();  // null をフィルタリング
+
+            if (count($lifeIds) < 1) {
+                return response()->json(['message' => 'life_idが無いためゲームを始めることができません'], 400);
+            }
+
+            // ランダムに一つのlife_idを選択して保存します
+            $randomIndex = array_rand($lifeIds);
+            $game->life_id = $lifeIds[$randomIndex];
+            $game->save();
+
+            $life = Life::where('life_id', $game->life_id)->with('cells')->first();
+            $eventname = 'gamestart';
+            event(new LifeGameEvent($game, $life, $users, $eventname));
+            return response()->json([
+                'message' => 'successfully'
+            ]);
+        } catch (Exception $e) {
+            return $this->handleException($e);
         }
-
-        $gameUserCount = GameUser::where('game_id', $game_id)->count();
-        if ($gameUserCount < 4) {
-            return response()->json(['message' => 'メンバーが足りていません'], 400);
-        }
-
-        // Gameの状態を'started'に更新
-        $game = Game::find($game_id);
-        $game->game_status = 'started';
-        $game->game_turn = 'user1';
-
-        $users = GameUser::where('game_id', $game_id)->with('user')->get();
-
-        $lifeIds = $users->map(function ($gameUser) {
-            $user = User::find($gameUser->user_id);
-            return $user->life_id;
-        })->filter()->toArray();  // null をフィルタリング
-
-        if (count($lifeIds) < 1) {
-            return response()->json(['message' => 'life_idが無いためゲームを始めることができません'], 400);
-        }
-
-        // ランダムに一つのlife_idを選択して保存します
-        $randomIndex = array_rand($lifeIds);
-        $game->life_id = $lifeIds[$randomIndex];
-        $game->save();
-
-        $eventname = 'gamestart';
-        event(new LifeGameEvent($game, $users, $eventname));
     }
 
     public function updateGameAndGameUser(Request $request)
     {
-        $game_id = $request->game_id;
-        $score = $request->score;
-        $current_cell = $request->current_cell;
 
-        $token = $request->bearerToken();
-        $currentUser = User::where('token', $token)->first();
+        try {
+            $game_id = $request->game_id;
+            $score = $request->score;
+            $current_cell = $request->current_cell;
 
-        $gameUser = GameUser::where('game_id', $game_id)->where('user_id', $currentUser->user_id)->first();
+            $token = $request->bearerToken();
+            $currentUser = User::where('token', $token)->first();
 
-        if (!$gameUser) {
-            return response()->json(['message' => '現在のユーザーはゲームに参加していません'], 400);
+            $gameUser = GameUser::where('game_id', $game_id)->where('user_id', $currentUser->user_id)->first();
+
+            if (!$gameUser) {
+                return response()->json(['message' => '現在のユーザーはゲームに参加していません'], 400);
+            }
+
+            $game = Game::find($game_id);
+
+            $users = GameUser::where('game_id', $game_id)->with('user')->get();
+            $users_id = $users->pluck('user_id')->toArray();
+            $currentUserIndex = array_search($currentUser->user_id, $users_id);
+
+            if (!$this->validateUserTurn($game, $currentUserIndex)) {
+                return response()->json(['message' => 'あなたの番ではありません'], 400);
+            }
+
+            $game = $this->updateGameTurn($game);
+
+            $gameUser->score = $score;
+            $gameUser->current_cell = $current_cell;
+            $gameUser->save();
+
+            $life = Life::where('life_id', $game->life_id)->with('cells')->first();
+            $eventname = 'user_turn';
+            event(new LifeGameEvent($game, $life, $users, $eventname));
+
+            return response()->json([
+                'message' => 'successfully'
+            ]);
+        } catch (Exception $e) {
+            return $this->handleException($e);
         }
-
-        $game = Game::find($game_id);
-
-        $users = GameUser::where('game_id', $game_id)->with('user')->get();
-        $users_id = $users->pluck('user_id')->toArray();
-        $currentUserIndex = array_search($currentUser->user_id, $users_id);
-
-        if (!$this->validateUserTurn($game, $currentUserIndex)) {
-            return response()->json(['message' => 'あなたの番ではありません'], 400);
-        }
-
-        $game = $this->updateGameTurn($game);
-
-        $gameUser->score = $score;
-        $gameUser->current_cell = $current_cell;
-        $gameUser->save();
-
-        $eventname = 'user_turn';
-        event(new LifeGameEvent($game, $users, $eventname));
     }
 
     private function validateUserTurn($game, $currentUserIndex)
@@ -183,5 +215,13 @@ class GameController extends Controller
         }
 
         return $game;
+    }
+    private function handleException($e)
+    {
+        return response()->json([
+            'error' => '予期しないエラー',
+            'message' => 'システムエラーが発生しました。 後でもう一度試してください。',
+            'sys_error' => $e->getMessage()
+        ], 500);
     }
 }

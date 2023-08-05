@@ -4,6 +4,7 @@ namespace App\Events;
 
 use App\Models\Game;
 use App\Models\GameUser;
+use App\Models\Life;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
@@ -15,6 +16,7 @@ class LifeGameEvent implements ShouldBroadcast
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $game;
+    public $life;
     public $users;
     public $eventname;
 
@@ -25,9 +27,10 @@ class LifeGameEvent implements ShouldBroadcast
      * @param  iterable  $users
      * @return void
      */
-    public function __construct(Game $game, iterable $users , string $eventname)
+    public function __construct(Game $game,Life $life, iterable $users , string $eventname)
     {
         $this->game = $game;
+        $this->life = $life;
         $this->users = $users;
         $this->eventname = $eventname;
     }
