@@ -46,6 +46,11 @@ class LifeController extends Controller
                 $lifeData['user_id'] = $user->user_id;
                 $life = Life::create($lifeData);
 
+                if ($user->life_id == null) {
+                    $user->life_id = $life->life_id;
+                    $user->save();
+                }
+
                 foreach ($request->cells as $cellData) {
                     $cellData['life_id'] = $life->life_id;
                     Cell::create($cellData);
