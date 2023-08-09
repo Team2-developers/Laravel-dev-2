@@ -93,7 +93,7 @@ class GameController extends Controller
             $game = Game::find($game_id);
             $users = GameUser::where('game_id', $game->game_id)->with('user')->get();
             $life = Life::where('life_id', $game->life_id)->with('cells')->first();
-            $lifeArray = $life->toArray();
+            $lifeArray = $life ? $life->toArray() : [];
             $eventname = 'useradd';
             event(new LifeGameEvent($game, $lifeArray, $users, $eventname));
 
