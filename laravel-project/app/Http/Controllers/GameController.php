@@ -36,6 +36,12 @@ class GameController extends Controller
                 'current_cell' => 0,
             ]);
 
+            $users = GameUser::where('game_id', $game->game_id)->with('user')->get();
+            $life = Life::where('life_id', $game->life_id)->with('cells')->first();
+            $lifeArray = $life ? $life->toArray() : [];
+            $eventname = 'create_game';
+            event(new LifeGameEvent($game, $lifeArray, $users, $eventname));
+
             $qrData = [
                 'game_id' => $game->game_id,
                 'user_id' => $user->user_id,
