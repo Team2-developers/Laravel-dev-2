@@ -7,6 +7,7 @@ use App\Models\Game;
 use App\Models\GameUser;
 use App\Models\GameEvent;
 use App\Models\User;
+use App\Models\Img;
 use App\Models\Life;
 use App\Models\Cell;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
@@ -37,10 +38,24 @@ class GameController extends Controller
             ]);
 
             $users = GameUser::where('game_id', $game->game_id)->with('user')->get();
+            $transformedUsers = $users->map(function ($gameUser) {
+                $userData = $gameUser->user;
+                $img = $userData->img;
+
+                return [
+                    'game_user_id' => $gameUser->game_user_id,
+                    'user_id' => $userData->user_id,
+                    'user_name' => $userData->user_name,
+                    'user_mail' => $userData->user_mail,
+                    'img_path' => $img ? $img->img_path : null,
+                    'score' => $gameUser->score,
+                    'current_cell' => $gameUser->current_cell
+                ];
+            });
             $life = Life::where('life_id', $game->life_id)->with('cells')->first();
             $lifeArray = $life ? $life->toArray() : [];
             $eventname = 'create_game';
-            event(new LifeGameEvent($game, $lifeArray, $users, $eventname));
+            event(new LifeGameEvent($game, $lifeArray, $transformedUsers, $eventname));
 
             $qrData = [
                 'game_id' => $game->game_id,
@@ -78,7 +93,6 @@ class GameController extends Controller
 
     public function addUserToGame(Request $request)
     {
-
         try {
             $token = $request->bearerToken();
             $user = User::where('token', $token)->first();
@@ -97,11 +111,25 @@ class GameController extends Controller
                 'current_cell' => 0,
             ]);
             $game = Game::find($game_id);
-            $users = GameUser::where('game_id', $game->game_id)->with('user')->get();
+            $users = GameUser::where('game_id', $game_id)->with('user')->get();
+            $transformedUsers = $users->map(function ($gameUser) {
+                $userData = $gameUser->user;
+                $img = $userData->img;
+
+                return [
+                    'game_user_id' => $gameUser->game_user_id,
+                    'user_id' => $userData->user_id,
+                    'user_name' => $userData->user_name,
+                    'user_mail' => $userData->user_mail,
+                    'img_path' => $img ? $img->img_path : null,
+                    'score' => $gameUser->score,
+                    'current_cell' => $gameUser->current_cell
+                ];
+            });
             $life = Life::where('life_id', $game->life_id)->with('cells')->first();
             $lifeArray = $life ? $life->toArray() : [];
             $eventname = 'useradd';
-            event(new LifeGameEvent($game, $lifeArray, $users, $eventname));
+            event(new LifeGameEvent($game, $lifeArray, $transformedUsers, $eventname));
 
             return response()->json([
                 'message' => 'successfully',
@@ -151,10 +179,24 @@ class GameController extends Controller
             $game->life_id = $lifeIds[$randomIndex];
             $game->save();
 
+            $transformedUsers = $users->map(function ($gameUser) {
+                $userData = $gameUser->user;
+                $img = $userData->img;
+
+                return [
+                    'game_user_id' => $gameUser->game_user_id,
+                    'user_id' => $userData->user_id,
+                    'user_name' => $userData->user_name,
+                    'user_mail' => $userData->user_mail,
+                    'img_path' => $img ? $img->img_path : null,
+                    'score' => $gameUser->score,
+                    'current_cell' => $gameUser->current_cell
+                ];
+            });
             $life = Life::where('life_id', $game->life_id)->with('cells')->first();
             $lifeArray = $life->toArray();
             $eventname = 'gamestart';
-            event(new LifeGameEvent($game, $lifeArray, $users, $eventname));
+            event(new LifeGameEvent($game, $lifeArray, $transformedUsers, $eventname));
             return response()->json([
                 'message' => 'successfully'
             ]);
@@ -205,7 +247,22 @@ class GameController extends Controller
 
                 $eventname = 'user_event';
             }
-            event(new LifeGameEvent($game, $lifeArray, $users, $eventname));
+
+            $transformedUsers = $users->map(function ($gameUser) {
+                $userData = $gameUser->user;
+                $img = $userData->img;
+
+                return [
+                    'game_user_id' => $gameUser->game_user_id,
+                    'user_id' => $userData->user_id,
+                    'user_name' => $userData->user_name,
+                    'user_mail' => $userData->user_mail,
+                    'img_path' => $img ? $img->img_path : null,
+                    'score' => $gameUser->score,
+                    'current_cell' => $gameUser->current_cell
+                ];
+            });
+            event(new LifeGameEvent($game, $lifeArray, $transformedUsers, $eventname));
 
             return response()->json([
                 'message' => 'successfully'
