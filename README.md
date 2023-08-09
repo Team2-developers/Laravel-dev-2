@@ -2,6 +2,7 @@
 
 
 composer install
+php artisan key:generate
 docker-compsoe up -d --build
 
 cd laravel-project
