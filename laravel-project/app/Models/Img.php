@@ -12,7 +12,7 @@ class Img extends Model
     protected $primaryKey = 'img_id';
 
     protected $fillable = [
-        'img_pass',
+        'img_path',
     ];
 
     protected $table = 'imgs';

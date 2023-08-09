@@ -15,17 +15,19 @@ class FileUploadContoller extends Controller
         $this->validate($request, ['file' => 'required|file']);
 
         $file = $request->file('file');
-        $filename = Str::random(10).'.'.$file->getClientOriginalExtension();
+        $filename = Str::random(10) . '.' . $file->getClientOriginalExtension();
 
         try {
-            $fullPath = Storage::disk('s3')->putFile('', $request->file('file'), 'public');
-
+            $file = $request->file('file');
+            $path = Storage::disk('s3')->putFile('/', $file);
+            $fullPath = env("AWS_URL").$path;
+            Log::info('Value of fullPath:', ['fullPath' => $fullPath]);
         } catch (\Exception $e) {
             Log::error('Failed to upload file to S3', [
                 'error' => $e->getMessage(),
                 'file' => $filename
             ]);
-        
+
             return response()->json(['message' => 'ファイルのアップロードに失敗しました'], 500);
         }
 
@@ -37,7 +39,7 @@ class FileUploadContoller extends Controller
 
         return response()->json([
             'message' => 'ファイルがアップロードされ、レコードが正常に作成されました',
-            'img_id' => $img->id,
+            'img_id' => $img->img_id,
             'img_path' => $img->img_path
         ], 200);
     }
