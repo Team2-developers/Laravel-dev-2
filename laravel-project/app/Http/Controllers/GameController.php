@@ -241,7 +241,7 @@ class GameController extends Controller
             $eventname = 'user_turn';
             $life = Life::where('life_id', $game->life_id)->with('cells')->first();
             $lifeArray = $life->toArray();
-            if (in_array($current_cell, [1, 2, 3])) {
+            if (in_array($current_cell, [1, 2, 3, 4, 5, 6, 7])) {
                 $randomGameEvent = GameEvent::inRandomOrder()->first();
                 $lifeArray['event'] = $randomGameEvent;
 
@@ -265,7 +265,8 @@ class GameController extends Controller
             event(new LifeGameEvent($game, $lifeArray, $transformedUsers, $eventname));
 
             return response()->json([
-                'message' => 'successfully'
+                'message' => 'successfully',
+                'user' => $gameUser
             ]);
         } catch (Exception $e) {
             return $this->handleException($e);
